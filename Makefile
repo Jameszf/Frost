@@ -6,7 +6,7 @@ build:
 	make engine
 
 clean:
-	rm *.o
+	-rm *.o
 
 
 engine: main.o
