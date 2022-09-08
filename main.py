@@ -2,6 +2,7 @@
 import sys
 
 import pygame
+from bitarray import bitarray
 
 
 pygame.init()
@@ -10,7 +11,7 @@ WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = 600, 600
 SHEET_SIZE = SHEET_WIDTH, SHEET_HEIGHT = WIN_WIDTH // 8 * 6, WIN_HEIGHT // 8 * 2
 TILE_SIZE = TILE_WIDTH, TILE_HEIGHT = WIN_WIDTH // 8, WIN_HEIGHT // 8
 BOARD_KEYS = ["wPawns", "wKnights", "wBishops", "wRooks", "wQueens", "wKings",
-				"bPawns", "bKnights", "bBishops", "bRooks", "bQueens", "bKings"]
+			  "bPawns", "bKnights", "bBishops", "bRooks", "bQueens", "bKings"]
 
 # Colors
 BLACK = 0, 0, 0
@@ -22,8 +23,15 @@ LIGHT_TILE = 240, 214, 181
 
 
 def defaultBoard():
+	"""
+	Generates bitarray representation of the starting position of a regular chess game.
+
+	INPUT: void.
+	OUTPUT: bitarray<64>.
+	"""
+
 	piecePos = {
-		"wPawns": [8, 9, 10, 11, 12, 13, 14, 15],
+	    "wPawns": [8, 9, 10, 11, 12, 13, 14, 15],
 		"wKnights": [1, 6],
 		"wBishops": [2, 5],
 		"wRooks": [0, 7],
@@ -55,6 +63,13 @@ def defaultBoard():
 
 
 def drawTiles(screen):
+	"""
+	Draws the 8 by 8 board tiles on screen
+
+	INPUT: screen (pygame display object).
+	OUTPUT: void.
+	"""
+
 	for y in range(8):
 		for x in range(8):
 			if (x + y) % 2 == 0:
@@ -69,6 +84,13 @@ def drawTiles(screen):
 
 
 def drawPieces(screen, board, sheet):
+	"""
+	Draws chess pieces according to board using sprites from sheet
+
+	INPUT: screen (pygame display object), board (bitarray), sheet (pygame sprite object).
+	OUTPUT: void.
+	"""
+
 	spritePos = {
 		"wPawns": (5 * TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT),
 		"wKnights": (3 * TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT),
@@ -97,23 +119,33 @@ def drawPieces(screen, board, sheet):
 
 
 def drawBoard(screen, board, sheet):
+	"""
+	Main rendering function of game. Rendering order MATTERS. 
+	LAYERS order: tiles --> pieces.
+
+	INPUT: screen (pygame display object), board (bitarray), sheet (pygame sprite object).
+	OUTPUT: void.
+	"""
+
 	drawTiles(screen)
 	drawPieces(screen, board, sheet)
 
 
 
 def main():
-	board = defaultBoard()
+	board = defaultBoard() # Get starting board state.
 
 	screen = pygame.display.set_mode(WIN_SIZE)
 	clock = pygame.time.Clock()
 
+	# Load piece sprite sheet.
 	sheet = pygame.image.load("assets/pieces.png").convert_alpha()
 	sheet = pygame.transform.smoothscale(sheet, SHEET_SIZE)
 
-	# event loop
+	# Event loop.
 	while True:
 		for event in pygame.event.get():
+			# Mouse 
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				print("Mouse clicked", event)
 
@@ -121,11 +153,11 @@ def main():
 				pygame.display.quit()
 				sys.exit()
 		
-		screen.fill(GREEN)
-		drawBoard(screen, board, sheet)
+		screen.fill(GREEN) # Clear previous frame.
+		drawBoard(screen, board, sheet) # Render new frame.
 
-		pygame.display.flip()
-		clock.tick(60)
+		pygame.display.flip() 
+		clock.tick(60) # Locked to 60 FPS.
 
 
 
