@@ -2,7 +2,6 @@
 import sys
 
 import pygame
-from bitarray import bitarray
 
 
 pygame.init()
@@ -115,6 +114,9 @@ def main():
 	# event loop
 	while True:
 		for event in pygame.event.get():
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				print("Mouse clicked", event)
+
 			if event.type == pygame.QUIT:
 				pygame.display.quit()
 				sys.exit()
