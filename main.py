@@ -117,21 +117,21 @@ def defaultBoard():
 	"""
 
 	piecePos = {
-	    "wPawns": [8, 9, 10, 11, 12, 13, 14, 15],
-		"wKnights": [1, 6],
-		"wBishops": [2, 5],
-		"wRooks": [0, 7],
-		"wQueens": [3],
-		"wKings": [4],
-		"bPawns": [48, 49, 50, 51, 52, 53, 54, 55],
-		"bKnights": [57, 62],
-		"bBishops": [58, 61],
-		"bRooks": [56, 63],
-		"bQueens": [59],
-		"bKings": [60]
+	    "wPawns": 0,
+		"wKnights": 0,
+		"wBishops": 0,
+		"wRooks": 0,
+		"wQueens": 0,
+		"wKings": 0,
+		"bPawns": 0,
+		"bKnights": 0,
+		"bBishops": 0,
+		"bRooks": 0,
+		"bQueens": 0,
+		"bKings": 0,
 	}
 	
-	return {key: Bitboard.make_bitboard(piecePos[key], key) for key in BOARD_KEYS }
+	return {key: Bitboard.makeBitboard(piecePos[key]) for key in BOARD_KEYS }
 
 
 
