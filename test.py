@@ -1,5 +1,5 @@
 
-from main import Bitboard
+from bitboard import Bitboard
 import random
 
 
@@ -22,7 +22,7 @@ def testFBitscan():
 	for i in range(1, 5000):
 		num = random.randint(1, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
 		bboard = Bitboard.makeBitboard(num)
-		result = bboard.fbitscan()
+		result = bboard.fBitscan()
 		bboard.insect(Bitboard.makeBitboard(1 << result))
 		assert bboard.barray == (num & -num), f"WRONG :: Forward bitscan outputted {result} for {bin(num)}."
 
@@ -36,7 +36,7 @@ def testRBitscan():
 	for i in range(1, 5000):
 		num = random.randint(1, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
 		bboard = Bitboard.makeBitboard(num)
-		result = bboard.rbitscan()
+		result = bboard.rBitscan()
 		bboard.insect(Bitboard.makeBitboard(1 << result))
 		assert bboard.barray == ms1b(num), f"WRONG :: Reverse bitscan outputted {result} for {bin(num)}."
 
@@ -51,7 +51,7 @@ def manualFBitscanTest():
 		inNum = int(input("Enter input number (in decimal): "))
 
 		bboard = Bitboard.makeBitboard(inNum)
-		result = bboard.fbitscan()
+		result = bboard.fBitscan()
 		numstr = bin(inNum)[2:].zfill(128)
 
 		print(f"Input number in binary: {numstr}")
@@ -71,7 +71,7 @@ def manualRBitscanTest():
 		inNum = int(input("Enter input number (in decimal): "))
 
 		bboard = Bitboard.makeBitboard(inNum)
-		result = bboard.rbitscan()
+		result = bboard.rBitscan()
 		numstr = bin(inNum)[2:].zfill(128)
 
 		print(f"Input number in binary: {numstr}")

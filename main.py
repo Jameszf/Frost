@@ -3,109 +3,13 @@ import sys
 
 import pygame
 from bitarray import bitarray
+from constants import *
+from bitboard import Bitboard
+
 
 
 pygame.init()
 
-WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = 600, 600
-BOARD_TILES = 10
-SHEET_ROWS = 2
-SHEET_COLS = 6
-TILE_SIZE = TILE_WIDTH, TILE_HEIGHT = WIN_WIDTH // BOARD_TILES, WIN_HEIGHT // BOARD_TILES
-SHEET_SIZE = (SHEET_COLS * TILE_WIDTH, SHEET_ROWS * TILE_HEIGHT)
-BOARD_KEYS = ["wPawns", "wKnights", "wBishops", "wRooks", "wQueens", "wKings",
-			  "bPawns", "bKnights", "bBishops", "bRooks", "bQueens", "bKings"]
-
-# Colors
-BLACK = 0, 0, 0
-WHITE = 255, 255, 255
-GREEN = 0, 255, 0
-DARK_TILE = 148, 111, 81
-LIGHT_TILE = 240, 214, 181
-
-
-
-class Bitboard:
-	def __init__(self):
-		self.barray = 0
-
-
-	@staticmethod
-	def makeBitboard(barray=0):
-		bboard = Bitboard()
-		bboard.barray = barray
-		return bboard
-
-
-	# Bit manipulation
-	def flipBit(self, pos): self.barray ^= (1 << pos) # Flip bit at pos.
-	def setBit(self, pos): self.barray |= (1 << pos) # Set bit at pos to be 1.
-	def clearBit(self, pos): self.barray &= ~(1 << pos) # Set bit at pos to be 0.
-	def getBit(self, pos): return (self.barray & (1 << pos)) != 0
-
-	def union(self, bboard): self.barray |= bboard.barray
-	def insect(self , bboard): self.barray &= bboard.barray
-	def xor(self, bboard): self.barray ^= bboard.barray
-
-
-	# bitscans
-	def fbitscan(self):
-		"""
-		128-bit Forward bitscan implementation using De Brujin multiplication.
-
-		Details: https://www.chessprogramming.org/BitScan#De_Bruijn_Multiplication	
-		"""
-		assert self.barray != 0
-
-		index = [0, 1, 2, 8, 3, 15, 9, 22, 4, 29,
-				  16, 36, 10, 43, 23, 50, 5, 33, 30,
-				  57, 17, 64, 37, 71, 11, 60, 44, 78,
-				  24, 85, 51, 92, 6, 20, 34, 48, 31,
-				  69, 58, 90, 18, 67, 65, 99, 38, 101,
-				  72, 106, 12, 40, 61, 82, 45, 103, 79,
-				  113, 25, 74, 86, 116, 52, 108, 93, 120,
-				  127, 7, 14, 21, 28, 35, 42, 49, 32, 56,
-				  63, 70, 59, 77, 84, 91, 19, 47, 68, 89,
-				  66, 98, 100, 105, 39, 81, 102, 112, 73,
-				  115, 107, 119, 126, 13, 27, 41, 55, 62,
-				  76, 83, 46, 88, 97, 104, 80, 111, 114,
-				  118, 125, 26, 54, 75, 87, 96, 110, 117,
-				  124, 53, 95, 109, 123, 94, 122, 121]
-		debrujin = 0x1061438916347932A5CD9D3EAD7B77F 
-		ls1b = self.barray & -self.barray
-		return index[((debrujin * ls1b) & 0xFE000000000000000000000000000000) >> 121]
-
-
-
-	def rbitscan(self):
-		index = [0, 69, 1, 27, 70, 113, 2, 13, 28, 97,
-				 71, 55, 114, 17, 3, 124, 14, 83, 29,
-				 41, 98, 86, 72, 65, 56, 46, 115, 60,
-				 18, 32, 4, 125, 111, 95, 15, 81, 84,
-				 44, 30, 109, 42, 107, 99, 50, 87, 101,
-				 73, 66, 52, 38, 57, 92, 47, 89, 116,
-				 23, 61, 103, 19, 119, 33, 75, 5, 126,
-				 68, 26, 112, 12, 96, 54, 16, 123, 82,
-				 40, 85, 64, 45, 59, 31, 110, 94, 80,
-				 43, 108, 106, 49, 100, 51, 37, 91, 88,
-				 22, 102, 118, 74, 67, 25, 11, 53, 122,
-				 39, 63, 58, 93, 79, 105, 48, 36, 90,
-				 21, 117, 24, 10, 121, 62, 78, 104, 35,
-				 20, 9, 120, 77, 34, 8, 76, 7, 6, 127]
-
-		debrujin = 0x1FC47709ECA6B19CC17D25B45754379
-		
-		ms = self.barray
-		ms |= ms >> 1
-		ms |= ms >> 2
-		ms |= ms >> 4
-		ms |= ms >> 8
-		ms |= ms >> 16
-		ms |= ms >> 32
-		ms |= ms >> 64
-
-		return index[((debrujin * ms) & 0xFE000000000000000000000000000000) >> 121]
-		
 
 
 def defaultBoard():
