@@ -7,9 +7,7 @@ from constants import *
 from bitboard import Bitboard
 
 
-
 pygame.init()
-
 
 
 def defaultBoard():
