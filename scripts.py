@@ -6,11 +6,10 @@ import math
 
 def genNAttkRays():
 	lookup = [None] * 100
-	north = 0x10040100401004010040100401
+	north = 0x40100401004010040100401
 
 	for i in range(100):
 		lookup[i] = ((north << i) & 0xFFFFFFFFFFFFFFFFFFFFFFFFF)
-
 	return lookup
 
 
@@ -20,24 +19,24 @@ def genEAttkRays():
 
 	for row in range(10):
 		east = 0x3FF << (row * 10)
+		east &= 0xFFFFFFFFFFFFFFFFFFFFFFFFF
 		for col in range(10):
-			lookup[row * 10 + col] = (east & 0xFFFFFFFFFFFFFFFFFFFFFFFFF)
-			east &= 0x1FF7FDFF7FDFF7FDFF7FDFF7FDFF # removes right-most board columns of bits
+			lookup[row * 10 + col] = east
+			east &= 0x7FDFF7FDFF7FDFF7FDFF7FDFF # removes right-most board columns of bits
 			east <<= 1
 
 
 	return lookup
 
-
-
 def genNEAttkRays():
 	lookup = [None] * 100
 
 	for row in range(10):
-		diag = 0x8010020040080100200400801 << (10 * row)
+		diag = 0x8010020040080100200400801 << (10 * r0w)
+		diag &= 0xFFFFFFFFFFFFFFFFFFFFFFFFF
 		for col in range(10):
-			lookup[row * 10 + col] = (diag & 0xFFFFFFFFFFFFFFFFFFFFFFFFF)
-			diag &= 0x1FF7FDFF7FDFF7FDFF7FDFF7FDFF # removes right-most board columns of bits
+			lookup[row * 10 + col] = diag
+			diag &= 0x7FDFF7FDFF7FDFF7FDFF7FDFF # removes left-most board column of bits
 			diag <<= 1
 
 	return lookup
@@ -52,7 +51,7 @@ def genNWAttkRays():
 		for col in range(9, -1, -1):
 			aDiag &= 0xFFFFFFFFFFFFFFFFFFFFFFFFF
 			lookup[row * 10 + col] = aDiag
-			aDiag &= 0x3FEFFBFEFFBFEFFBFEFFBFEFFBFE # removes right-most columns of bits
+			aDiag &= 0xFFBFEFFBFEFFBFEFFBFEFFBFE # removes right-most columns of bits
 			aDiag >>= 1
 
 	return lookup
