@@ -4,7 +4,7 @@ import math
 
 
 
-def genNorthAttackRays():
+def genNAttkRays():
 	lookup = [None] * 100
 	north = 0x10040100401004010040100401
 
@@ -15,35 +15,36 @@ def genNorthAttackRays():
 
 
 
-def genEastAttackRays():
+def genEAttkRays():
 	lookup = [None] * 100
 
 	for row in range(10):
 		east = 0x3FF << (row * 10)
 		for col in range(10):
 			lookup[row * 10 + col] = (east & 0xFFFFFFFFFFFFFFFFFFFFFFFFF)
-			east &= 0x1FF7FDFF7FDFF7FDFF7FDFF7FDFF# removes left-most columns of bits
+			east &= 0x1FF7FDFF7FDFF7FDFF7FDFF7FDFF # removes right-most board columns of bits
 			east <<= 1
+
 
 	return lookup
 
 
 
-def genDiagAttackRays():
+def genNEAttkRays():
 	lookup = [None] * 100
 
 	for row in range(10):
 		diag = 0x8010020040080100200400801 << (10 * row)
 		for col in range(10):
 			lookup[row * 10 + col] = (diag & 0xFFFFFFFFFFFFFFFFFFFFFFFFF)
-			diag &= 0x1FF7FDFF7FDFF7FDFF7FDFF7FDFF# removes left-most columns of bits
+			diag &= 0x1FF7FDFF7FDFF7FDFF7FDFF7FDFF # removes right-most board columns of bits
 			diag <<= 1
 
 	return lookup
 
 
 
-def genADiagAttackRays():
+def genNWAttkRays():
 	lookup = [None] * 100
 
 	for row in range(10):
@@ -58,11 +59,68 @@ def genADiagAttackRays():
 
 
 
+def genSAttkRays():
+	lookup = [None] * 100
+
+	for i in range(99, -1, -1):
+		south = 0x8020080200802008020080200
+		lookup[i] = south >> i
+
+	return lookup
+
+
+
+def genWAttkRays():
+	lookup = [None] * 100
+
+	for row in range(10):
+		west = 0x3FF << (10 * row)
+		west &= 0xFFFFFFFFFFFFFFFFFFFFFFFFF
+		for col in range(9, -1, -1):
+			lookup[row * 10 + col] = west
+			west &= 0xFFBFEFFBFEFFBFEFFBFEFFBFE # removes left-most board column of bits
+			west >>= 1
+
+	return lookup
+
+
+
+def genSWAttkRays():
+	lookup = [None] * 100
+	
+	for row in range(9, -1, -1):
+		diag = 0x8010020040080100200400801 >> (10 * (9 - row))
+		diag &= 0xFFFFFFFFFFFFFFFFFFFFFFFFF
+		for col in range(9, -1, -1):
+			lookup[row * 10 + col] = diag
+			diag &= 0xFFBFEFFBFEFFBFEFFBFEFFBFE # removes left-most board column of bits
+			diag >>= 1
+			diag &= 0xFFFFFFFFFFFFFFFFFFFFFFFFF
+
+	return lookup
+
+
+
+def genSEAttkRays():
+	lookup = [None] * 100
+
+	for row in range(9, -1, -1):
+		aDiag = 0x40201008040201008040200 >> (10 * (9 - row))
+		aDiag &= 0xFFFFFFFFFFFFFFFFFFFFFFFFF
+		for col in range(10):
+			lookup[row * 10 + col] = aDiag
+			aDiag &= 0x7FDFF7FDFF7FDFF7FDFF7FDFF
+			aDiag <<= 1 
+
+	return lookup
+		
+
+
 def printBboard(bboard):
 	bboardStr = bin(bboard)[2:].zfill(100)
 	print(bboard)
 	for i in range(0, 100, 10):
-		print(bboardStr[i:i + 10])
+		print(bboardStr[i:i + 10][::-1])
 
 
 
@@ -154,6 +212,10 @@ if __name__ == "__main__":
 	# print(genFBitscanIndex(0x1061438916347932A5CD9D3EAD7B77F))
 	# print(genRBitscanIndex(0x1FC47709ECA6B19CC17D25B45754379))
 
-	# printBboardList(genADiagAttackRays())
+	# printBboardList(genWAttkRays())
+	# printBboardList(genSAttkRays())
+	# printBboardList(genNAttkRays())
 
+	# printBboardList(genSWAttkRays())
+	printBboardList(genSEAttkRays())
 
