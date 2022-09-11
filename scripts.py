@@ -1,6 +1,7 @@
 
 
 import math
+import json
 
 
 
@@ -32,7 +33,7 @@ def genNEAttkRays():
 	lookup = [None] * 100
 
 	for row in range(10):
-		diag = 0x8010020040080100200400801 << (10 * r0w)
+		diag = 0x8010020040080100200400801 << (10 * row)
 		diag &= 0xFFFFFFFFFFFFFFFFFFFFFFFFF
 		for col in range(10):
 			lookup[row * 10 + col] = diag
@@ -115,6 +116,29 @@ def genSEAttkRays():
 		
 
 
+def writeAttkRaysFile():
+	with open("attackRays.json", "w") as f:
+		attkRays = {
+			"NW": genNWAttkRays(),
+			"N": genNAttkRays(),
+			"NE": genNEAttkRays(),
+			"E": genEAttkRays(),
+			"SE": genSEAttkRays(),
+			"S": genSAttkRays(),
+			"SW": genSWAttkRays(),
+			"W": genWAttkRays()
+		}
+
+		f.write(json.dumps(attkRays))
+
+
+		
+def readAttkRaysFile():
+	with open("attackRays.json", "r") as f:
+		return json.load(f)
+
+
+
 def printBboard(bboard):
 	bboardStr = bin(bboard)[2:].zfill(100)
 	print(bboard)
@@ -129,6 +153,18 @@ def printBboardList(bbList):
 		print(f" Start of {hexBboard} ".center(50, "="))
 		printBboard(bboard)
 		print(f" End of {hexBboard} ".center(50, "="))
+
+
+
+def examineBboardList(bboard):
+	while True:
+		cmd = input("Examine Bitboard at index (enter -1 to exit): ")
+
+		if cmd == "-1":
+			break
+		
+		printBboard(bboard[int(cmd)])
+	
 
 
 
@@ -216,5 +252,9 @@ if __name__ == "__main__":
 	# printBboardList(genNAttkRays())
 
 	# printBboardList(genSWAttkRays())
-	printBboardList(genSEAttkRays())
+	# printBboardList(genSEAttkRays())
 
+	# print(hexifyBboardList(genWAttkRays()))
+	# writeAttkRaysFile()
+
+	print(readAttkRaysFile())
