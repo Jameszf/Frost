@@ -3,19 +3,27 @@
 import math
 import json
 
+# ATTACK-RAYS ON EMPTY BOARD
+# 
+# Generation functions for attack-rays on an empty board. These attack-rays are used in
+# further generation of attack-sets that will be used throughout the game and engine.
+# These are generally cheap to compute and have a finite number of states but they are
+# used often.
+# =====================================================================================
 
-
-def genNAttkRays():
+# POSITIVE ATTACK-RAYS
+# =====================================================================================
+def genNAttkRays(): # NORTH
 	lookup = [None] * 100
 	north = 0x40100401004010040100401
 
 	for i in range(100):
 		lookup[i] = ((north << i) & 0xFFFFFFFFFFFFFFFFFFFFFFFFF)
+
 	return lookup
 
 
-
-def genEAttkRays():
+def genEAttkRays(): # EAST
 	lookup = [None] * 100
 
 	for row in range(10):
@@ -26,10 +34,11 @@ def genEAttkRays():
 			east &= 0x7FDFF7FDFF7FDFF7FDFF7FDFF # removes right-most board columns of bits
 			east <<= 1
 
-
 	return lookup
 
-def genNEAttkRays():
+
+
+def genNEAttkRays(): # NORTH-EAST
 	lookup = [None] * 100
 
 	for row in range(10):
@@ -44,7 +53,7 @@ def genNEAttkRays():
 
 
 
-def genNWAttkRays():
+def genNWAttkRays(): # NORTH-WEST
 	lookup = [None] * 100
 
 	for row in range(10):
@@ -59,7 +68,9 @@ def genNWAttkRays():
 
 
 
-def genSAttkRays():
+# NEGATIVE ATTACK-RAYS
+# =====================================================================================
+def genSAttkRays(): # SOUTH
 	lookup = [None] * 100
 
 	for i in range(99, -1, -1):
@@ -70,7 +81,7 @@ def genSAttkRays():
 
 
 
-def genWAttkRays():
+def genWAttkRays(): # WEST
 	lookup = [None] * 100
 
 	for row in range(10):
@@ -85,7 +96,7 @@ def genWAttkRays():
 
 
 
-def genSWAttkRays():
+def genSWAttkRays(): # SOUTH-WEST
 	lookup = [None] * 100
 	
 	for row in range(9, -1, -1):
@@ -101,7 +112,7 @@ def genSWAttkRays():
 
 
 
-def genSEAttkRays():
+def genSEAttkRays(): # SOUTH-EAST
 	lookup = [None] * 100
 
 	for row in range(9, -1, -1):
@@ -115,7 +126,10 @@ def genSEAttkRays():
 	return lookup
 		
 
-
+# ATTACK-RAYS JSON FILE
+# Functions to read and write the attackRays.json file that holds the precomputed
+# attack-rays bitboards in dictionary of lists of integers.
+# =====================================================================================
 def writeAttkRaysFile():
 	with open("attackRays.json", "w") as f:
 		attkRays = {
@@ -139,6 +153,9 @@ def readAttkRaysFile():
 
 
 
+# BITBOARD MANIPULATION 
+# Simple functions to output and look at bitboards in a more human friendly manner.
+# =====================================================================================
 def printBboard(bboard):
 	bboardStr = bin(bboard)[2:].zfill(100)
 	print(bboard)
@@ -172,13 +189,19 @@ def hexifyBboardList(bblist):
 	return [hex(el) for el in bblist]
 
 
-	
-def genDeBrujinIndex(valFunc, idxFunc, inGen):
-	"""
-	Help function for generating indices for 128-bit Bitscan implementations using
-	De Brujin multiplication.
-	"""
 
+# BITSCAN INDEX GENERATION
+# 
+# Generation functions for a custom 128-bit (forward/reverse) Bitscan implementation
+# using De Brujin multiplication. Each index is tied to a specific de brujin sequence.
+# These functions do not reliable generate complete indexes depending on the inputted
+# de brujin sequence.
+# 
+# For more details about the algorithms
+# (Forward bitscan) https://www.chessprogramming.org/BitScan#De_Bruijn_Multiplication
+# (Reverse bitscan) https://www.chessprogramming.org/BitScan#De_Bruijn_Multiplication_2
+# =====================================================================================
+def genDeBrujinIndex(valFunc, idxFunc, inGen):
 	index = [None] * 128
 	for i in inGen():
 		if index[valFunc(i)] != None:
@@ -191,16 +214,6 @@ def genDeBrujinIndex(valFunc, idxFunc, inGen):
 
 def genFBitscanIndex(debrujin):
 	"""
-	Generates a index that can be used for a custom 128-bit forward bitscan implementation
-	using De Brujin multiplication.
-
-
-	Algorithm details: https://www.chessprogramming.org/BitScan#De_Bruijn_Multiplication
-
-	NOTES
-	This may have the same issue as genRBitscanIndex() where certain De Brujin sequences
-	may not result in a complete index. 
-
 	128-bit De Brujin sequences that result in a complete index: 
 	0x1061438916347932A5CD9D3EAD7B77F
 	"""
@@ -217,17 +230,6 @@ def genFBitscanIndex(debrujin):
 
 def genRBitscanIndex(debrujin):
 	"""
-	Generates a index that can be used for a custom 128-bit reverse bitscan implementation
-	using De Brujin multiplication.
-
-
-	Algorithm details: https://www.chessprogramming.org/BitScan#De_Bruijn_Multiplication_2
-
-	NOTES
-	This does not reliably generate does not generate a complete index depending on
-	the inputted De Brujin sequence.
-	e.g 0x1061438916347932A5CD9D3EAD7B77F 
-
 	128-bit De Brujin sequences that result in a complete index: 
 	0x1FC47709ECA6B19CC17D25B45754379
 	"""
@@ -257,4 +259,4 @@ if __name__ == "__main__":
 	# print(hexifyBboardList(genWAttkRays()))
 	# writeAttkRaysFile()
 
-	print(readAttkRaysFile())
+	# print(readAttkRaysFile())
