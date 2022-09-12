@@ -3,6 +3,8 @@
 import math
 import json
 
+
+
 # ATTACK-RAYS ON EMPTY BOARD
 # 
 # Generation functions for attack-rays on an empty board. These attack-rays are used in

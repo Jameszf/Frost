@@ -1,5 +1,6 @@
 
 # CONSTANTS
+# =====================================================================================
 WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = 600, 600
 BOARD_TILES = 10
 SHEET_ROWS = 2
@@ -9,9 +10,24 @@ SHEET_SIZE = (SHEET_COLS * TILE_WIDTH, SHEET_ROWS * TILE_HEIGHT)
 BOARD_KEYS = ["wPawns", "wKnights", "wBishops", "wRooks", "wQueens", "wKings",
 			  "bPawns", "bKnights", "bBishops", "bRooks", "bQueens", "bKings"]
 
-# Colors
+# COLORS
+# =====================================================================================
 BLACK = 0, 0, 0
 WHITE = 255, 255, 255
 GREEN = 0, 255, 0
 DARK_TILE = 148, 111, 81
 LIGHT_TILE = 240, 214, 181
+
+
+# GAME STATE
+# =====================================================================================
+AttkRayTable = {
+	"NW": [],
+	"N": [],
+	"NE": [],
+	"E": [],
+	"SE": [],
+	"S": [],
+	"SW": [],
+	"W": []
+}

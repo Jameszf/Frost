@@ -2,12 +2,26 @@
 import sys
 
 import pygame
-from bitarray import bitarray
-from constants import *
-from bitboard import Bitboard
+from gameVars import *
+
+from bitboard import *
 
 
 pygame.init()
+
+
+
+def isNegDir(rDir):
+	return rDir == "W" | rDir == "SW" | rDir == "S" | rDir == "SE"
+
+
+def genBlckAttkRay(occBboard, rayDir, sq):
+	blockers = occBboard & attkRayTbl[rayDir][sq]
+	fstBlockerSq = blockers.rBitscan() if isNegDir(rayDir) else blockers.fBitscan()
+	rmRay = attkRayTbl[rayDir][fstBlockerSq] ^ (Bitboard.makeBitboard(1 << fstBlockerSq))
+
+	return attkRayTbl[rayDir][sq] ^ rmRay
+
 
 
 def defaultBoard():
@@ -18,7 +32,7 @@ def defaultBoard():
 	OUTPUT: List<Bitboard>.
 	"""
 
-	piecePos = {
+	return {
 	    "wPawns": 0,
 		"wKnights": 0,
 		"wBishops": 0,
@@ -32,8 +46,6 @@ def defaultBoard():
 		"bQueens": 0,
 		"bKings": 0,
 	}
-	
-	return {key: Bitboard.makeBitboard(piecePos[key]) for key in BOARD_KEYS }
 
 
 
@@ -82,10 +94,9 @@ def drawPieces(screen, bboards, sheet):
 		"bKings": (0, TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT),
 	}
 
-	
 	for key in BOARD_KEYS:
 		for i in range(BOARD_TILES ** 2):
-			if bboards[key].getBit(i):
+			if getBit(bboards[key], i):
 				x = (i % 8) * TILE_WIDTH
 				y = (7 - i // 8) * TILE_HEIGHT
 				screen.blit(sheet, (x, y), area=spritePos[key])
