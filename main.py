@@ -1,26 +1,38 @@
 
 import sys
+import json
 
 import pygame
-from gameVars import *
 
+from gameVars import *
 from bitboard import *
 
 
 pygame.init()
 
 
-
 def isNegDir(rDir):
 	return rDir == "W" | rDir == "SW" | rDir == "S" | rDir == "SE"
 
 
-def genBlckAttkRay(occBboard, rayDir, sq):
-	blockers = occBboard & attkRayTbl[rayDir][sq]
-	fstBlockerSq = blockers.rBitscan() if isNegDir(rayDir) else blockers.fBitscan()
-	rmRay = attkRayTbl[rayDir][fstBlockerSq] ^ (Bitboard.makeBitboard(1 << fstBlockerSq))
 
-	return attkRayTbl[rayDir][sq] ^ rmRay
+def genBlckAttkRay(occBboard, rayDir, sq):
+	blockers = occBboard & g_attkRayTbl[rayDir][sq]
+	fstBlockerSq = blockers.rBitscan() if isNegDir(rayDir) else blockers.fBitscan()
+	rmRay = g_attkRayTbl[rayDir][fstBlockerSq] ^ (1 << fstBlockerSq)
+
+	return g_attkRayTbl[rayDir][sq] ^ rmRay
+
+
+
+def getPieceAtTile(x, y):
+	pass
+
+
+def genAttkPiece(x, y):
+	print(f"Generating Attack Piece Bitboard for piece at ({x} {y})")
+
+
 
 
 
@@ -32,24 +44,36 @@ def defaultBoard():
 	OUTPUT: List<Bitboard>.
 	"""
 
-	return {
-	    "wPawns": 0,
-		"wKnights": 0,
-		"wBishops": 0,
-		"wRooks": 0,
-		"wQueens": 0,
-		"wKings": 0,
-		"bPawns": 0,
-		"bKnights": 0,
-		"bBishops": 0,
-		"bRooks": 0,
-		"bQueens": 0,
-		"bKings": 0,
-	}
+	global g_board
+
+	# DEFAULT BOARD
+	# return {
+	#     "wPawns": 0,
+	# 	"wKnights": 0,
+	# 	"wBishops": 0,
+	# 	"wRooks": 0,
+	# 	"wQueens": 0,
+	# 	"wKings": 0,
+	# 	"bPawns": 0,
+	# 	"bKnights": 0,
+	# 	"bBishops": 0,
+	# 	"bRooks": 0,
+	# 	"bQueens": 0,
+	# 	"bKings": 0,
+	# }
+
+	# TESTING BOARD
+	board = {}
+	with open("testBoard.txt", "r") as f:
+		for pType in BOARD_KEYS:
+			board[pType] = int(f.readline()[:-2], 2)
+
+	g_board = board 
 
 
 
-def drawTiles(screen):
+
+def drawTiles():
 	"""
 	Draws BOARD_TILES by BOARD_TILES checkerboard on screen
 
@@ -66,11 +90,11 @@ def drawTiles(screen):
 		
 			tx = x * TILE_WIDTH
 			ty = y * TILE_WIDTH
-			pygame.draw.rect(screen, color, (tx, ty, tx + TILE_WIDTH, ty + TILE_HEIGHT))
+			pygame.draw.rect(g_screen, color, (tx, ty, tx + TILE_WIDTH, ty + TILE_HEIGHT))
 
 
 
-def drawPieces(screen, bboards, sheet):
+def drawPieces():
 	"""
 	Draws chess pieces according to board using sprites from sheet
 
@@ -96,14 +120,14 @@ def drawPieces(screen, bboards, sheet):
 
 	for key in BOARD_KEYS:
 		for i in range(BOARD_TILES ** 2):
-			if getBit(bboards[key], i):
-				x = (i % 8) * TILE_WIDTH
-				y = (7 - i // 8) * TILE_HEIGHT
-				screen.blit(sheet, (x, y), area=spritePos[key])
+			if getBit(g_board[key], i):
+				x = (i % BOARD_TILES) * TILE_WIDTH
+				y = ((BOARD_TILES - 1) - i // BOARD_TILES) * TILE_HEIGHT
+				g_screen.blit(g_sheet, (x, y), area=spritePos[key])
 
 
 
-def drawBoard(screen, board, sheet):
+def drawBoard():
 	"""
 	Main rendering function of game. Rendering order MATTERS. 
 	LAYERS order: tiles --> pieces.
@@ -112,20 +136,30 @@ def drawBoard(screen, board, sheet):
 	OUTPUT: void.
 	"""
 
-	drawTiles(screen)
-	drawPieces(screen, board, sheet)
+	drawTiles()
+	drawPieces()
+
+
+
+def loadGameVars():
+	global g_sheet, g_screen
+	with open("attackRays.json", "r") as f:
+		AttkRayTbl = json.load(f)
+
+	defaultBoard()
+
+	g_screen = pygame.display.set_mode(WIN_SIZE)
+
+	# Load pieces sprite sheet.
+	g_sheet = pygame.image.load("assets/pieces.png").convert_alpha()
+	g_sheet = pygame.transform.smoothscale(g_sheet, SHEET_SIZE)
 
 
 
 def main():
-	board = defaultBoard() # Get starting board state.
+	loadGameVars()
 
-	screen = pygame.display.set_mode(WIN_SIZE)
 	clock = pygame.time.Clock()
-
-	# Load piece sprite sheet.
-	sheet = pygame.image.load("assets/pieces.png").convert_alpha()
-	sheet = pygame.transform.smoothscale(sheet, SHEET_SIZE)
 
 	# Event loop.
 	while True:
@@ -133,13 +167,17 @@ def main():
 			# Mouse 
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				print("Mouse clicked", event)
+				mx, my = pygame.mouse.get_pos()
+				boardx = mx // TILE_WIDTH
+				boardy = (WIN_HEIGHT - my) // TILE_HEIGHT
+				genAttkPiece(boardx, boardy)
 
 			if event.type == pygame.QUIT:
 				pygame.display.quit()
 				sys.exit()
 		
-		screen.fill(GREEN) # Clear previous frame.
-		drawBoard(screen, board, sheet) # Render new frame.
+		g_screen.fill(GREEN) # Clear previous frame.
+		drawBoard() # Render new frame.
 		pygame.display.flip() 
 		clock.tick(60) # Locked to 60 FPS.
 
