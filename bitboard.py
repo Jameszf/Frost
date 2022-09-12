@@ -30,7 +30,7 @@ def fBitscan(bboard):
 	Details: https://www.chessprogramming.org/BitScan#De_Bruijn_Multiplication	
 	"""
 
-	assert bboard != 0
+	if bboard == 0: return 0
 	
 	index = [0, 1, 2, 8, 3, 15, 9, 22, 4, 29,
 			 16, 36, 10, 43, 23, 50, 5, 33, 30,
@@ -59,7 +59,7 @@ def rBitscan(bboard):
 	Details: https://www.chessprogramming.org/BitScan#De_Bruijn_Multiplication_2
 	"""
 
-	assert bboard != 0
+	if bboard == 0: return 0
 	
 	index = [0, 69, 1, 27, 70, 113, 2, 13, 28, 97,
 			 71, 55, 114, 17, 3, 124, 14, 83, 29,

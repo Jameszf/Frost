@@ -6,33 +6,78 @@ import pygame
 
 from gameVars import *
 from bitboard import *
+from scripts import printBboard
 
 
 pygame.init()
 
 
 def isNegDir(rDir):
-	return rDir == "W" | rDir == "SW" | rDir == "S" | rDir == "SE"
+	return rDir == "W" or rDir == "SW" or rDir == "S" or rDir == "SE"
 
 
 
 def genBlckAttkRay(occBboard, rayDir, sq):
-	blockers = occBboard & g_attkRayTbl[rayDir][sq]
-	fstBlockerSq = blockers.rBitscan() if isNegDir(rayDir) else blockers.fBitscan()
-	rmRay = g_attkRayTbl[rayDir][fstBlockerSq] ^ (1 << fstBlockerSq)
+	blockers = (occBboard & g_attkRayTbl[rayDir][sq]) ^ (1 << sq)
+	blckRay = g_attkRayTbl[rayDir][sq]
 
-	return g_attkRayTbl[rayDir][sq] ^ rmRay
+	if blockers != 0:
+		# print("Blockers")
+		# printBboard(blockers)
+		fstBlockerSq = rBitscan(blockers) if isNegDir(rayDir) else fBitscan(blockers)
+		# print(f"Bitscan result {fstBlockerSq}")
+		rmRay = g_attkRayTbl[rayDir][fstBlockerSq] ^ (1 << fstBlockerSq)
+		blckRay ^= rmRay
+
+	return blckRay
 
 
 
 def getPieceAtTile(x, y):
-	pass
+	for key in BOARD_KEYS:
+		if getBit(g_board[key], y * 10 + x):
+			return key
+
+	return None
+
+
+def getOccBboard():
+	occBboard = 0
+	for key in BOARD_KEYS:
+		occBboard |= g_board[key]
+
+	return occBboard
+		
 
 
 def genAttkPiece(x, y):
 	print(f"Generating Attack Piece Bitboard for piece at ({x} {y})")
+	print(f"Piece occupying that tile: {getPieceAtTile(x, y)}")
 
+	pType = getPieceAtTile(x, y)
+	pType = pType[1:] if pType else "None"
+	sq = y * 10 + x
+	occBboard = getOccBboard()
+	printBboard(occBboard)
 
+	# Sliding pieces
+	if pType == "Queens":
+		rDir = ["NW", "N", "NE", "E", "SE", "S", "SW", "W"]
+	elif pType == "Rooks":
+		rDir = ["N", "E", "S", "W"]
+	elif pType == "Bishops":
+		rDir = ["NW", "NE", "SE", "SW"]
+	else:
+		rDir = []
+	
+	attkPiece = 0
+	print("Blocked Rays")
+	for rd in rDir:
+		blckRay = genBlckAttkRay(occBboard, rd, sq)
+		printBboard(blckRay)
+		attkPiece |= blckRay
+	print("Attack Piece generated")
+	printBboard(attkPiece)
 
 
 
@@ -142,9 +187,9 @@ def drawBoard():
 
 
 def loadGameVars():
-	global g_sheet, g_screen
+	global g_sheet, g_screen, g_attkRayTbl
 	with open("attackRays.json", "r") as f:
-		AttkRayTbl = json.load(f)
+		g_attkRayTbl = json.load(f)
 
 	defaultBoard()
 

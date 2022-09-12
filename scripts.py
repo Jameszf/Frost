@@ -4,7 +4,6 @@ import math
 import json
 
 
-
 # ATTACK-RAYS ON EMPTY BOARD
 # 
 # Generation functions for attack-rays on an empty board. These attack-rays are used in
@@ -77,7 +76,7 @@ def genSAttkRays(): # SOUTH
 
 	for i in range(99, -1, -1):
 		south = 0x8020080200802008020080200
-		lookup[i] = south >> i
+		lookup[i] = south >> (99 - i)
 
 	return lookup
 
@@ -192,6 +191,22 @@ def hexifyBboardList(bblist):
 
 
 
+def examineAttkRaysFile():
+	index = readAttkRaysFile()
+
+	while True:
+		key = input("Piece key: ")
+
+		while True:
+			cmd = input("Examine Bitboard at index (enter -1 to exit): ")
+
+			printBboard(index[key][int(cmd)])
+
+			if cmd == "-1":
+				break
+			
+
+
 # BITSCAN INDEX GENERATION
 # 
 # Generation functions for a custom 128-bit (forward/reverse) Bitscan implementation
@@ -259,6 +274,8 @@ if __name__ == "__main__":
 	# printBboardList(genSEAttkRays())
 
 	# print(hexifyBboardList(genWAttkRays()))
-	# writeAttkRaysFile()
 
-	# print(readAttkRaysFile())
+	writeAttkRaysFile()
+	examineAttkRaysFile()
+
+	
