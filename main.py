@@ -17,7 +17,8 @@ def isNegDir(rDir):
 
 
 
-def genBlckAttkRay(occBboard, rayDir, sq):
+def genBlckAttkRay(rayDir, sq):
+	occBboard = getOccBboard()
 	blockers = (occBboard & g_attkRayTbl[rayDir][sq]) ^ (1 << sq)
 	blckRay = g_attkRayTbl[rayDir][sq]
 
@@ -33,9 +34,9 @@ def genBlckAttkRay(occBboard, rayDir, sq):
 
 
 
-def getPieceAtTile(x, y):
+def getPieceAtTile(sq):
 	for key in BOARD_KEYS:
-		if getBit(g_board[key], y * 10 + x):
+		if getBit(g_board[key], sq):
 			return key
 
 	return None
@@ -47,35 +48,95 @@ def getOccBboard():
 		occBboard |= g_board[key]
 
 	return occBboard
-		
 
 
-def genAttkPiece(x, y):
-	print(f"Generating Attack Piece Bitboard for piece at ({x} {y})")
-	print(f"Piece occupying that tile: {getPieceAtTile(x, y)}")
 
-	pType = getPieceAtTile(x, y)
+
+def genKingAttkPiece(sq):
+	notAFile = 0xFFBFEFFBFEFFBFEFFBFEFFBFE
+	notJFile = 0x7FDFF7FDFF7FDFF7FDFF7FDFF
+	inBounds = 0xFFFFFFFFFFFFFFFFFFFFFFFFF
+
+	north = (0x400 << sq) & inBounds
+	south = 0x20000000000000000000000 >> (99 - sq)
+	east = (0x2 << sq) & notAFile
+	west = (0x4000000000000000000000000 >> (99 - sq)) & notJFile
+
+	northEast = (0x800 << sq) & notAFile
+	northWest = (0x1000000000000000000000000000 >> (99 - sq)) & notJFile
+	southEast = (0x80000000000000000000000 >> (100 - sq)) & notAFile
+	southWest = (0x10000000000000000000000 >> (99 - sq)) & notJFile
+
+	kingSq = 1 << sq
+
+	return kingSq | north | south | east | west | northEast | northWest | southEast | southWest
+
+
+
+def genKnightAttkPiece(sq):
+	notAFile = 0xFFBFEFFBFEFFBFEFFBFEFFBFE
+	notJFile = 0x7FDFF7FDFF7FDFF7FDFF7FDFF
+	notABFiles = 0xFF3FCFF3FCFF3FCFF3FCFF3FC
+	notIJFiles = 0x3FCFF3FCFF3FCFF3FCFF3FCFF
+	inBounds = 0xFFFFFFFFFFFFFFFFFFFFFFFFF
+
+	noNoEa = (0x200000 << sq) & notAFile
+	noNoWe = (0x400000000000000000000000000000 >> (99 - sq)) & notJFile
+
+	noEaEa = (0x1000 << sq) & notABFiles
+	soEaEa = (0x100000000000000000000000 >> (100 - sq)) & notABFiles
+
+	soSoEa = (0x200000000000000000000 >> (100 - sq)) & notAFile
+	soSoWe = (0x40000000000000000000 >> (99 - sq)) & notJFile
+
+	soWeWe = (0x8000000000000000000000 >> (99 - sq)) & notIJFiles
+	noWeWe = (0x800000000000000000000000000 >> (99 - sq)) & notIJFiles
+
+	knightSq = 1 << sq
+
+	return knightSq | noNoEa | noNoWe | noEaEa | soEaEa | soSoEa | soSoWe | soWeWe | noWeWe
+
+
+
+def genPawnAttkPiece(sq):
+	notAFile = 0xFFBFEFFBFEFFBFEFFBFEFFBFE
+	notJFile = 0x7FDFF7FDFF7FDFF7FDFF7FDFF
+
+	northEast = (0x800 << sq) & notAFile
+	northWest = (0x1000000000000000000000000000 >> (99 - sq)) & notJFile
+
+	return northEast | northWest
+
+
+
+
+def genAttkPiece(sq):
+	print(f"Generating Attack Piece Bitboard for piece at square #{sq}")
+	print(f"Piece occupying that tile: {getPieceAtTile(sq)}")
+
+	pType = getPieceAtTile(sq)
 	pType = pType[1:] if pType else "None"
-	sq = y * 10 + x
-	occBboard = getOccBboard()
-	printBboard(occBboard)
 
 	# Sliding pieces
-	if pType == "Queens":
-		rDir = ["NW", "N", "NE", "E", "SE", "S", "SW", "W"]
-	elif pType == "Rooks":
-		rDir = ["N", "E", "S", "W"]
-	elif pType == "Bishops":
-		rDir = ["NW", "NE", "SE", "SW"]
-	else:
-		rDir = []
-	
 	attkPiece = 0
-	print("Blocked Rays")
-	for rd in rDir:
-		blckRay = genBlckAttkRay(occBboard, rd, sq)
-		printBboard(blckRay)
-		attkPiece |= blckRay
+	if pType == "Queens" or pType == "Rooks" or pType == "Bishops":
+		rDir = {
+			"Queens": ["NW", "N", "NE", "E", "SE", "S", "SW", "W"],
+			"Rooks": ["N", "E", "S", "W"],
+			"Bishops": ["NW", "NE", "SE", "SW"]
+		}
+		for rd in rDir[pType]:
+			blckRay = genBlckAttkRay(rd, sq)
+			attkPiece |= blckRay
+	elif pType == "Knights":
+		attkPiece = genKnightAttkPiece(sq)
+	elif pType == "Pawns":
+		attkPiece = genPawnAttkPiece(sq)
+	elif pType == "Kings":
+		attkPiece = genKingAttkPiece(sq)
+	else:
+		pass
+	
 	print("Attack Piece generated")
 	printBboard(attkPiece)
 
@@ -215,7 +276,7 @@ def main():
 				mx, my = pygame.mouse.get_pos()
 				boardx = mx // TILE_WIDTH
 				boardy = (WIN_HEIGHT - my) // TILE_HEIGHT
-				genAttkPiece(boardx, boardy)
+				genAttkPiece(boardy * 10 + boardx)
 
 			if event.type == pygame.QUIT:
 				pygame.display.quit()

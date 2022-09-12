@@ -206,6 +206,41 @@ def examineAttkRaysFile():
 				break
 			
 
+def examGenKingAttkPiece():
+	from main import genKingAttkPiece
+
+	# indices = [1, 25, 60, 89]
+
+	# for idx in indices:
+	# 	print(f"SQUARE {idx}")
+	# 	printBboardList(genKingAttkPiece(idx))
+
+	for i in range(100):
+		printBboard(genKingAttkPiece(i))
+
+
+
+def examGenKnightAttkPiece():
+	from main import genKnightAttkPiece
+
+	# indices = [1, 25, 60, 89]
+
+	# for idx in indices:
+	# 	print(f"SQUARE {idx}")
+	# 	printBboardList(genKnightAttkPiece(idx))
+
+	for i in range(100):
+		printBboard(genKnightAttkPiece(i))
+	
+
+
+def examGenPawnAttkPiece():
+	from main import genPawnAttkPiece
+
+	for i in range(100):
+		printBboard(genPawnAttkPiece(i))
+	
+
 
 # BITSCAN INDEX GENERATION
 # 
@@ -261,7 +296,6 @@ def genRBitscanIndex(debrujin):
 
 
 
-
 if __name__ == "__main__":
 	# print(genFBitscanIndex(0x1061438916347932A5CD9D3EAD7B77F))
 	# print(genRBitscanIndex(0x1FC47709ECA6B19CC17D25B45754379))
@@ -275,7 +309,8 @@ if __name__ == "__main__":
 
 	# print(hexifyBboardList(genWAttkRays()))
 
-	writeAttkRaysFile()
-	examineAttkRaysFile()
+	# writeAttkRaysFile()
+	# examineAttkRaysFile()
 
+	examGenPawnAttkPiece()
 	
