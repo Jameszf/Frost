@@ -1,7 +1,10 @@
 
-from boardState import getOccBboard
-from gameVars import *
+import state
+import board
+
+from bitboard import rBitscan, fBitscan
 from scripts import printBboard
+
 
 
 notAFile = 0xFFBFEFFBFEFFBFEFFBFEFFBFE
@@ -17,16 +20,16 @@ def isNegDir(rDir):
 
 
 def genBlckAttkRay(rayDir, sq):
-	occBboard = getOccBboard()
-	blockers = (occBboard & g_attkRayTbl[rayDir][sq]) ^ (1 << sq)
-	blckRay = g_attkRayTbl[rayDir][sq]
+	occBboard = board.getOccBboard()
+	blockers = (occBboard & state.attkRayTbl[rayDir][sq]) ^ (1 << sq)
+	blckRay = state.attkRayTbl[rayDir][sq]
 
 	if blockers != 0:
 		# print("Blockers")
 		# printBboard(blockers)
 		fstBlockerSq = rBitscan(blockers) if isNegDir(rayDir) else fBitscan(blockers)
 		# print(f"Bitscan result {fstBlockerSq}")
-		rmRay = g_attkRayTbl[rayDir][fstBlockerSq] ^ (1 << fstBlockerSq)
+		rmRay = state.attkRayTbl[rayDir][fstBlockerSq] ^ (1 << fstBlockerSq)
 		blckRay ^= rmRay
 
 	return blckRay
@@ -78,9 +81,9 @@ def genPawnAttkPiece(sq):
 
 def genAttkPiece(sq):
 	print(f"Generating Attack Piece Bitboard for piece at square #{sq}")
-	print(f"Piece occupying that tile: {getPieceAtTile(sq)}")
+	print(f"Piece occupying that tile: {board.getPieceAtTile(sq)}")
 
-	pType = getPieceAtTile(sq)
+	pType = board.getPieceAtTile(sq)
 	pType = pType[1:] if pType else "None"
 
 	# Sliding pieces

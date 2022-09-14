@@ -19,33 +19,3 @@ DARK_TILE = 148, 111, 81
 LIGHT_TILE = 240, 214, 181
 
 
-# GAME STATE
-# =====================================================================================
-g_attkRayTbl = {
-	"NW": [],
-	"N": [],
-	"NE": [],
-	"E": [],
-	"SE": [],
-	"S": [],
-	"SW": [],
-	"W": []
-}
-
-g_board = {
-	"wPawns": 0,
-	"wKnights": 0,
-	"wBishops": 0,
-	"wRooks": 0,
-	"wQueens": 0,
-	"wKings": 0,
-	"bPawns": 0,
-	"bKnights": 0,
-	"bBishops": 0,
-	"bRooks": 0,
-	"bQueens": 0,
-	"bKings": 0,
-}
-
-g_screen = None
-g_sheet = None
