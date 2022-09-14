@@ -7,138 +7,30 @@ import pygame
 from gameVars import *
 from bitboard import *
 from scripts import printBboard
+from attackPiece import *
+from boardState import *
+
 
 
 pygame.init()
+			
 
 
-def isNegDir(rDir):
-	return rDir == "W" or rDir == "SW" or rDir == "S" or rDir == "SE"
+def movePiece(start, dest):
+	global g_board
 
+	startPKey = getPieceAtTile(start)
+	destPKey = getPieceAtTile(dest)
 
+	if startPKey:
+		moveMap = 0 if startPKey[1:] == "Pawns" else genAttkPiece(start)
 
-def genBlckAttkRay(rayDir, sq):
-	occBboard = getOccBboard()
-	blockers = (occBboard & g_attkRayTbl[rayDir][sq]) ^ (1 << sq)
-	blckRay = g_attkRayTbl[rayDir][sq]
-
-	if blockers != 0:
-		# print("Blockers")
-		# printBboard(blockers)
-		fstBlockerSq = rBitscan(blockers) if isNegDir(rayDir) else fBitscan(blockers)
-		# print(f"Bitscan result {fstBlockerSq}")
-		rmRay = g_attkRayTbl[rayDir][fstBlockerSq] ^ (1 << fstBlockerSq)
-		blckRay ^= rmRay
-
-	return blckRay
-
-
-
-def getPieceAtTile(sq):
-	for key in BOARD_KEYS:
-		if getBit(g_board[key], sq):
-			return key
-
-	return None
-
-
-def getOccBboard():
-	occBboard = 0
-	for key in BOARD_KEYS:
-		occBboard |= g_board[key]
-
-	return occBboard
-
-
-
-
-def genKingAttkPiece(sq):
-	notAFile = 0xFFBFEFFBFEFFBFEFFBFEFFBFE
-	notJFile = 0x7FDFF7FDFF7FDFF7FDFF7FDFF
-	inBounds = 0xFFFFFFFFFFFFFFFFFFFFFFFFF
-
-	north = (0x400 << sq) & inBounds
-	south = 0x20000000000000000000000 >> (99 - sq)
-	east = (0x2 << sq) & notAFile
-	west = (0x4000000000000000000000000 >> (99 - sq)) & notJFile
-
-	northEast = (0x800 << sq) & notAFile
-	northWest = (0x1000000000000000000000000000 >> (99 - sq)) & notJFile
-	southEast = (0x80000000000000000000000 >> (100 - sq)) & notAFile
-	southWest = (0x10000000000000000000000 >> (99 - sq)) & notJFile
-
-	kingSq = 1 << sq
-
-	return kingSq | north | south | east | west | northEast | northWest | southEast | southWest
-
-
-
-def genKnightAttkPiece(sq):
-	notAFile = 0xFFBFEFFBFEFFBFEFFBFEFFBFE
-	notJFile = 0x7FDFF7FDFF7FDFF7FDFF7FDFF
-	notABFiles = 0xFF3FCFF3FCFF3FCFF3FCFF3FC
-	notIJFiles = 0x3FCFF3FCFF3FCFF3FCFF3FCFF
-	inBounds = 0xFFFFFFFFFFFFFFFFFFFFFFFFF
-
-	noNoEa = (0x200000 << sq) & notAFile
-	noNoWe = (0x400000000000000000000000000000 >> (99 - sq)) & notJFile
-
-	noEaEa = (0x1000 << sq) & notABFiles
-	soEaEa = (0x100000000000000000000000 >> (100 - sq)) & notABFiles
-
-	soSoEa = (0x200000000000000000000 >> (100 - sq)) & notAFile
-	soSoWe = (0x40000000000000000000 >> (99 - sq)) & notJFile
-
-	soWeWe = (0x8000000000000000000000 >> (99 - sq)) & notIJFiles
-	noWeWe = (0x800000000000000000000000000 >> (99 - sq)) & notIJFiles
-
-	knightSq = 1 << sq
-
-	return knightSq | noNoEa | noNoWe | noEaEa | soEaEa | soSoEa | soSoWe | soWeWe | noWeWe
-
-
-
-def genPawnAttkPiece(sq):
-	notAFile = 0xFFBFEFFBFEFFBFEFFBFEFFBFE
-	notJFile = 0x7FDFF7FDFF7FDFF7FDFF7FDFF
-
-	northEast = (0x800 << sq) & notAFile
-	northWest = (0x1000000000000000000000000000 >> (99 - sq)) & notJFile
-
-	return northEast | northWest
-
-
-
-
-def genAttkPiece(sq):
-	print(f"Generating Attack Piece Bitboard for piece at square #{sq}")
-	print(f"Piece occupying that tile: {getPieceAtTile(sq)}")
-
-	pType = getPieceAtTile(sq)
-	pType = pType[1:] if pType else "None"
-
-	# Sliding pieces
-	attkPiece = 0
-	if pType == "Queens" or pType == "Rooks" or pType == "Bishops":
-		rDir = {
-			"Queens": ["NW", "N", "NE", "E", "SE", "S", "SW", "W"],
-			"Rooks": ["N", "E", "S", "W"],
-			"Bishops": ["NW", "NE", "SE", "SW"]
-		}
-		for rd in rDir[pType]:
-			blckRay = genBlckAttkRay(rd, sq)
-			attkPiece |= blckRay
-	elif pType == "Knights":
-		attkPiece = genKnightAttkPiece(sq)
-	elif pType == "Pawns":
-		attkPiece = genPawnAttkPiece(sq)
-	elif pType == "Kings":
-		attkPiece = genKingAttkPiece(sq)
-	else:
-		pass
-	
-	print("Attack Piece generated")
-	printBboard(attkPiece)
+		if getBit(moveMap, dest) and not (isOccupied(dest) and not canCapture(start, dest)):
+			if isOccupied(dest) and canCapture(start, dest):
+				g_board[destPKey] = clearBit(g_board[destPKey], dest)
+			g_board[startPKey] = setBit(clearBit(g_board[startPKey], start), dest)
+			return True
+	return False
 
 
 
@@ -268,23 +160,31 @@ def main():
 	clock = pygame.time.Clock()
 
 	# Event loop.
+
+	selSq = None
 	while True:
 		for event in pygame.event.get():
 			# Mouse 
 			if event.type == pygame.MOUSEBUTTONDOWN:
-				print("Mouse clicked", event)
 				mx, my = pygame.mouse.get_pos()
-				boardx = mx // TILE_WIDTH
-				boardy = (WIN_HEIGHT - my) // TILE_HEIGHT
-				genAttkPiece(boardy * 10 + boardx)
+				sq = 10 * ((WIN_HEIGHT - my) // TILE_HEIGHT) + (mx // TILE_WIDTH)
+				if getPieceAtTile(sq) != "None":
+					if selSq != None:
+						print("Possible movePiece()")
+						selSq = None if movePiece(selSq, sq) else sq
+					else:
+						selSq = sq
+				else:
+					selSq = None
+					
 
 			if event.type == pygame.QUIT:
 				pygame.display.quit()
 				sys.exit()
 		
 		g_screen.fill(GREEN) # Clear previous frame.
-		drawBoard() # Render new frame.
-		pygame.display.flip() 
+		drawBoard() 
+		pygame.display.flip() # Render new frame.
 		clock.tick(60) # Locked to 60 FPS.
 
 
