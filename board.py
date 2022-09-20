@@ -14,6 +14,13 @@ def getPieceAtTile(sq):
 
 
 
+def getPieceColorAtTile(sq):
+	for key in BOARD_KEYS:
+		if getBit(state.board[key], sq):
+			return key[0]
+
+
+
 def isOccupied(sq):
 	occ = getOccBboard()
 	return getBit(occ, sq)
@@ -50,3 +57,7 @@ def movePiece(start, dest):
 			state.board[startPKey] = setBit(clearBit(state.board[startPKey], start), dest)
 			return True
 	return False
+
+
+def placePiece(sq, pType):
+	state.board[pType] = setBit(state.board[pType], sq)
