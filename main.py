@@ -46,10 +46,12 @@ def main():
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				mx, my = pygame.mouse.get_pos()
 				sq = 10 * ((WIN_HEIGHT - my) // TILE_HEIGHT) + (mx // TILE_WIDTH)
-				if state.phase == "deployment":
+				# DEPLOYMENT
+				if state.phase == "deployment": 
 					if not board.isOccupied(sq):
-						board.placePiece(sq, f"{toDeploy[0]}s")
-						toDeploy.pop(0)
+						res = board.placePiece(sq, f"{toDeploy[0]}s")
+						if res:
+							toDeploy.pop(0)
 
 						if len(toDeploy) == 0:
 							state.playingPhase()
@@ -57,6 +59,7 @@ def main():
 							print(f"Place {toDeploy[0]}")
 					else:
 						print("Square is occupied!")
+				# PLAYING
 				else:
 					if board.getPieceAtTile(sq) != "None":
 						if selSq != None:
@@ -74,7 +77,7 @@ def main():
 		state.screen.fill(GREEN) # Clear previous frame.
 		draw.drawBoard() 
 		pygame.display.flip() # Render new frame.
-		clock.tick(60) # Locked to 60 FPS.
+		clock.tick(60) # Locked to 60 FPS. 
 
 
 

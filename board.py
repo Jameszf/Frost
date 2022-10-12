@@ -1,8 +1,9 @@
 
 import state
 from constants import *
-from bitboard import getBit, clearBit, setBit
+from bitboard import getBit, clearBit, setBit, fBitscan
 from attackPiece import genAttkPiece
+from scripts import printBboard
 
 
 def getPieceAtTile(sq):
@@ -44,6 +45,23 @@ def getOccBboard():
 
 
 
+def getColorAttkSet(color):
+	pieceTypes = ["Pawns", "Bishops", "Knights", "Queens", "Rooks", "Kings"]
+	pieceTypes = [f"{color}{pType}" for pType in pieceTypes]
+
+	attkSet = 0
+	for pType in pieceTypes:
+		bboard = state.board[pType]
+
+		while bboard != 0:
+			idx = fBitscan(bboard)
+			attkSet |= genAttkPiece(idx)
+			bboard = clearBit(bboard, idx)
+			
+	return attkSet
+	
+
+
 def movePiece(start, dest):
 	startPKey = getPieceAtTile(start)
 	destPKey = getPieceAtTile(dest)
@@ -60,4 +78,16 @@ def movePiece(start, dest):
 
 
 def placePiece(sq, pType):
-	state.board[pType] = setBit(state.board[pType], sq)
+	if pType[1:] == "Kings":
+		oppColor = "w" if pType[0] == "b" else "b"
+		attkSet = getColorAttkSet(oppColor)
+		print(f"ATTACK SET OF {oppColor}")
+		printBboard(attkSet)
+		if not getBit(attkSet, sq):
+			state.board[pType] = setBit(state.board[pType], sq)
+			return True
+		else:
+			return False
+	else:
+		state.board[pType] = setBit(state.board[pType], sq)
+		return True

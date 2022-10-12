@@ -78,7 +78,7 @@ def genPawnAttkPiece(sq):
 	return northEast | northWest
 
 
-
+# TODO make function independent of state
 def genAttkPiece(sq):
 	print(f"Generating Attack Piece Bitboard for piece at square #{sq}")
 	print(f"Piece occupying that tile: {board.getPieceAtTile(sq)}")
