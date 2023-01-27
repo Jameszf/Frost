@@ -1,60 +1,41 @@
 
-import json
-import pygame
-
+from board import Board
 from constants import *
 
 
 
-# GAME STATE
-# =====================================================================================
-def init(emptyBoard=True):
-	global sheet, screen, attkRayTbl, board, turn, phase
+class InitialStateFactory:
+    def NORMAL():
+        gameState = InitialStateFactory.__BASE("emptyBoard.txt")
+        gameState.turn = Turn.WHITE
+        gameState.phase = Phase.DEPLOYMENT
+        return gameState
 
-	with open("attackRays.json", "r") as f:
-		attkRayTbl = json.load(f)
-
-	# DEFAULT BOARD
-	# return {
-	#     "wPawns": 0,
-	# 	"wKnights": 0,
-	# 	"wBishops": 0,
-	# 	"wRooks": 0,
-	# 	"wQueens": 0,
-	# 	"wKings": 0,
-	# 	"bPawns": 0,
-	# 	"bKnights": 0,
-	# 	"bBishops": 0,
-	# 	"bRooks": 0,
-	# 	"bQueens": 0,
-	# 	"bKings": 0,
-	# }
-
-	# TESTING BOARD
-	board = {}
-
-	boardFile = "emptyBoard.txt" if emptyBoard else "randomBoard.txt"
-
-	with open(boardFile, "r") as f:
-		for pType in BOARD_KEYS:
-			board[pType] = int(f.readline()[:-2], 2)
-
-	screen = pygame.display.set_mode(WIN_SIZE)
-
-	# Load pieces sprite sheet.
-	sheet = pygame.image.load("assets/pieces.png").convert_alpha()
-	sheet = pygame.transform.smoothscale(sheet, SHEET_SIZE)
-
-	turn = "white"
-	phase = "deployment"
+    def TEST_PRESET():
+        gameState = InitialStateFactory.__BASE("randomBoard.txt")
+        gameState.turn = Turn.WHITE
+        gameState.phase = Phase.PLAYING
+        return gameState
+        
+    def __BASE(boardFile):
+        state = GameState()
+        with open(boardFile, "r") as f:
+            bboards = {}
+            for pType in Board.KEYS:
+                bboards[pType] = int(f.readline()[:-2], 2)
+            state.board = Board(bboards)
+        return state
 
 
-def toggleTurn():
-	global turn
-	turn = "white" if turn == "black" else "black"
+class GameState:
+    def __init__(self):
+        self.board = None
+        self.turn = None
+        self.phase = None
 
-
-
-def playingPhase():
-	global phase
-	phase = "playing"
+    def toggleTurn(self):
+        self.turn = Turn.WHITE if self.turn == Turn.BLACK else Turn.BLACK
+        
+    def setPhase(self, phase):
+        self.phase = phase
+    

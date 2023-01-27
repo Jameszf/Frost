@@ -1,13 +1,12 @@
 
 import pygame
 
-import state
 from constants import *
 from bitboard import getBit
+from board import Board
 
 
-
-def drawTiles():
+def drawTiles(screen):
 	"""
 	Draws BOARD_TILES by BOARD_TILES checkerboard on screen
 
@@ -24,11 +23,11 @@ def drawTiles():
 		
 			tx = x * TILE_WIDTH
 			ty = y * TILE_WIDTH
-			pygame.draw.rect(state.screen, color, (tx, ty, tx + TILE_WIDTH, ty + TILE_HEIGHT))
+			pygame.draw.rect(screen, color, (tx, ty, tx + TILE_WIDTH, ty + TILE_HEIGHT))
 
 
 
-def drawPieces():
+def drawPieces(screen, sheet, bboards):
 	"""
 	Draws chess pieces according to board using sprites from sheet
 
@@ -52,16 +51,16 @@ def drawPieces():
 		"bKings": (0, TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT),
 	}
 
-	for key in BOARD_KEYS:
+	for key in Board.KEYS:
 		for i in range(BOARD_TILES ** 2):
-			if getBit(state.board[key], i):
+			if getBit(bboards[key], i):
 				x = (i % BOARD_TILES) * TILE_WIDTH
 				y = ((BOARD_TILES - 1) - i // BOARD_TILES) * TILE_HEIGHT
-				state.screen.blit(state.sheet, (x, y), area=spritePos[key])
+				screen.blit(sheet, (x, y), area=spritePos[key])
 
 
 
-def drawBoard():
+def drawBoard(screen, sheet, bboards):
 	"""
 	Main rendering function of game. Rendering order MATTERS. 
 	LAYERS order: tiles --> pieces.
@@ -70,5 +69,6 @@ def drawBoard():
 	OUTPUT: void.
 	"""
 
-	drawTiles()
-	drawPieces()
+	drawTiles(screen)
+	drawPieces(screen, sheet, bboards)
+

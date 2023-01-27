@@ -1,93 +1,85 @@
 
-import state
 from constants import *
 from bitboard import getBit, clearBit, setBit, fBitscan
-from attackPiece import genAttkPiece
+from attackPiece import Attack
 from scripts import printBboard
 
 
-def getPieceAtTile(sq):
-	for key in BOARD_KEYS:
-		if getBit(state.board[key], sq):
-			return key
+class Board:
+    KEYS = ["wPawns", "wKnights", "wBishops", "wRooks", "wQueens", "wKings",
+                  "bPawns", "bKnights", "bBishops", "bRooks", "bQueens", "bKings"]
 
-	return None
-
-
-
-def getPieceColorAtTile(sq):
-	for key in BOARD_KEYS:
-		if getBit(state.board[key], sq):
-			return key[0]
+    def __init__(self, bboards):
+        self.bboards = bboards
 
 
-
-def isOccupied(sq):
-	occ = getOccBboard()
-	return getBit(occ, sq)
-
-
-
-def canCapture(sq1, sq2):
-	p1 = getPieceAtTile(sq1)
-	p2 = getPieceAtTile(sq2)
-
-	return p1[0] != p2[0]
+    def getPieceAtTile(self, square):
+        for key in Board.KEYS:
+            if getBit(self.bboards[key], square):
+                return key
 
 
-
-def getOccBboard():
-	occBboard = 0
-	for key in BOARD_KEYS:
-		occBboard |= state.board[key]
-
-	return occBboard
+    def getPieceColorAtTile(self, square):
+        for key in Board.KEYS:
+            if getBit(self.bboards[key], square):
+                return key[0]
 
 
-
-def getColorAttkSet(color):
-	pieceTypes = ["Pawns", "Bishops", "Knights", "Queens", "Rooks", "Kings"]
-	pieceTypes = [f"{color}{pType}" for pType in pieceTypes]
-
-	attkSet = 0
-	for pType in pieceTypes:
-		bboard = state.board[pType]
-
-		while bboard != 0:
-			idx = fBitscan(bboard)
-			attkSet |= genAttkPiece(idx)
-			bboard = clearBit(bboard, idx)
-			
-	return attkSet
-	
+    def isOccupied(self, square):
+        occ = self.getOccBboard()
+        return getBit(occ, square)
 
 
-def movePiece(start, dest):
-	startPKey = getPieceAtTile(start)
-	destPKey = getPieceAtTile(dest)
-
-	if startPKey:
-		moveMap = 0 if startPKey[1:] == "Pawns" else genAttkPiece(start)
-
-		if getBit(moveMap, dest) and not (isOccupied(dest) and not canCapture(start, dest)):
-			if isOccupied(dest) and canCapture(start, dest):
-				state.board[destPKey] = clearBit(state.board[destPKey], dest)
-			state.board[startPKey] = setBit(clearBit(state.board[startPKey], start), dest)
-			return True
-	return False
+    def canCapture(self, square1, square2):
+        p1 = self.getPieceAtTile(square1)
+        p2 = self.getPieceAtTile(square2)
+        return p1[0] != p2[0]
 
 
-def placePiece(sq, pType):
-	if pType[1:] == "Kings":
-		oppColor = "w" if pType[0] == "b" else "b"
-		attkSet = getColorAttkSet(oppColor)
-		print(f"ATTACK SET OF {oppColor}")
-		printBboard(attkSet)
-		if not getBit(attkSet, sq):
-			state.board[pType] = setBit(state.board[pType], sq)
-			return True
-		else:
-			return False
-	else:
-		state.board[pType] = setBit(state.board[pType], sq)
-		return True
+    def getOccBboard(self):
+        occBboard = 0
+        for key in Board.KEYS:
+            occBboard |= self.bboards[key]
+        return occBboard
+
+
+    def getColorAttkSet(self, color):
+        pieceTypes = ["Pawns", "Bishops", "Knights", "Queens", "Rooks", "Kings"]
+        pieceTypes = [f"{color}{pType}" for pType in pieceTypes]
+        attkSet = 0
+        for pType in pieceTypes:
+            bboard = self.bboards[pType]
+            while bboard != 0:
+                idx = fBitscan(bboard)
+                attkSet |= Attack.genAttkPiece(self.bboards, idx)
+                bboard = clearBit(bboard, idx)
+        return attkSet
+
+
+    def movePiece(self, start, dest):
+        startPKey = self.getPieceAtTile(start)
+        destPKey = self.getPieceAtTile(dest)
+        if startPKey:
+            moveMap = 0 if startPKey[1:] == "Pawns" else Attack.genAttkPiece(self.bboards, start)
+            if getBit(moveMap, dest) and not (self.isOccupied(dest) and not self.canCapture(start, dest)):
+                if self.isOccupied(dest) and self.canCapture(start, dest):
+                    self.bboards[destPKey] = clearBit(self.bboards[destPKey], dest)
+                self.bboards[startPKey] = setBit(clearBit(self.bboards[startPKey], start), dest)
+                return True
+        return False
+
+
+    def placePiece(self, square, pType):
+        if pType[1:] == "Kings":
+            oppColor = "w" if pType[0] == "b" else "b"
+            attkSet = self.getColorAttkSet(oppColor)
+            print(f"ATTACK SET OF {oppColor}")
+            printBboard(attkSet)
+            if not getBit(attkSet, square):
+                self.bboards[pType] = setBit(self.bboards[pType], square)
+                return True
+            else:
+                return False
+        else:
+            self.bboards[pType] = setBit(self.bboards[pType], square)
+            return True
