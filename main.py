@@ -5,8 +5,7 @@ import pygame
 
 from state import InitialStateFactory
 from attackPiece import Attack
-import draw
-import board
+from draw import Draw
 from scripts import printBboard
 from constants import *
 
@@ -14,11 +13,8 @@ from constants import *
 class App:
     def __init__(self):
         pygame.init()
-        self.gameState = {}
-        # Pygame Objects
-        self.sheet = None
-        self.screen = None
-        self.clock = None
+        self.gameState = None
+        self.draw = Draw()
         # MISC state
         self.selectedSquare = None
         self.toDeploy = []
@@ -27,12 +23,6 @@ class App:
 
     def initStates(self):
         Attack.init()
-        self.screen = pygame.display.set_mode(WIN_SIZE)
-        self.clock = pygame.time.Clock()
-        sheet = pygame.image.load("assets/pieces.png").convert_alpha()
-        sheet = pygame.transform.smoothscale(sheet, SHEET_SIZE)
-        self.sheet = sheet
-
         while True: 
             initType = input("Normal init (n) or Filled board (f): ")
             if initType == "f":
@@ -93,11 +83,7 @@ class App:
                 if event.type == pygame.QUIT:
                     pygame.display.quit()
                     sys.exit()
-                    
-            self.screen.fill(GREEN) # Clear previous frame.
-            draw.drawBoard(self.screen, self.sheet, self.gameState.board.bboards) 
-            pygame.display.flip() # Render new frame.
-            self.clock.tick(60) # Locked to 60 FPS. 
+            self.draw.drawBoard(self.gameState.board.bboards) # Render board and pieces.
 
 
 def main():
