@@ -7,3 +7,6 @@ share/
 lib
 lib64
 include
+
+# misc files
+tests/writer.py
