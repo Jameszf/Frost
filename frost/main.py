@@ -3,11 +3,11 @@ import sys
 import json
 import pygame
 
-from state import InitialStateFactory
-from attackPiece import Attack
-from draw import Draw
-from scripts import printBboard
-from constants import *
+from frost.state import InitialStateFactory
+from frost.attackPiece import Attack
+from frost.draw import Draw
+from frost.scripts import printBboard
+from frost.constants import *
 
 
 class App:
@@ -47,6 +47,7 @@ class App:
         square = 10 * ((WIN_HEIGHT - my) // TILE_HEIGHT) + (mx // TILE_WIDTH)
         if not self.gameState.board.isOccupied(square):
             res = self.gameState.board.placePiece(square, f"{self.toDeploy[-1]}s")
+            self.draw.syncPieces(self.gameState.board.bboards)
             if res:
                 self.toDeploy.pop()
 
@@ -62,6 +63,7 @@ class App:
         if self.gameState.board.getPieceAtTile(square) != "None":
             if self.selectedSquare != None:
                 self.selectedSquare = None if self.gameState.board.movePiece(self.selectedSquare, square) else square
+                self.draw.syncPieces(self.gameState.board.bboards)
             else:
                 self.selectedSquare = square
         else:
@@ -83,7 +85,7 @@ class App:
                 if event.type == pygame.QUIT:
                     pygame.display.quit()
                     sys.exit()
-            self.draw.drawBoard(self.gameState.board.bboards) # Render board and pieces.
+            self.draw.drawBoard() # Render board and pieces.
 
 
 def main():

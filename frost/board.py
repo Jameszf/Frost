@@ -1,8 +1,8 @@
 
-from constants import *
-from bitboard import getBit, clearBit, setBit, fBitscan
-from attackPiece import Attack
-from scripts import printBboard
+from frost.constants import *
+from frost.bitboard import getBit, clearBit, setBit, rBitscan
+from frost.attackPiece import Attack
+from frost.scripts import printBboard
 
 
 class Board:
@@ -50,7 +50,7 @@ class Board:
         for pType in pieceTypes:
             bboard = self.bboards[pType]
             while bboard != 0:
-                idx = fBitscan(bboard)
+                idx = rBitscan(bboard)
                 attkSet |= Attack.genAttkPiece(self.bboards, idx)
                 bboard = clearBit(bboard, idx)
         return attkSet

@@ -23,9 +23,9 @@ def ms1b(bboard):
 	
 
 # bitscans
-def fBitscan(bboard):
+def rBitscan(bboard):
 	"""
-	128-bit Forward Bitscan implementation using De Brujin multiplication.
+	128-bit Reverse Bitscan implementation using De Brujin multiplication.
 	
 	Details: https://www.chessprogramming.org/BitScan#De_Bruijn_Multiplication	
 	"""
@@ -52,9 +52,9 @@ def fBitscan(bboard):
 
 
 
-def rBitscan(bboard):
+def fBitscan(bboard):
 	"""
-	128-bit Reverse Bitscan implementation using De Brujin multiplication.
+	128-bit Forward Bitscan implementation using De Brujin multiplication.
 
 	Details: https://www.chessprogramming.org/BitScan#De_Bruijn_Multiplication_2
 	"""

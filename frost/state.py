@@ -1,18 +1,17 @@
 
-from board import Board
-from constants import *
-
+from frost.board import Board
+from frost.constants import *
 
 
 class InitialStateFactory:
     def NORMAL():
-        gameState = InitialStateFactory.__BASE("../emptyBoard.txt")
+        gameState = InitialStateFactory.__BASE("./frost/emptyBoard.txt")
         gameState.turn = Turn.WHITE
         gameState.phase = Phase.DEPLOYMENT
         return gameState
 
     def TEST_PRESET():
-        gameState = InitialStateFactory.__BASE("../randomBoard.txt")
+        gameState = InitialStateFactory.__BASE("./frost/randomBoard.txt")
         gameState.turn = Turn.WHITE
         gameState.phase = Phase.PLAYING
         return gameState

@@ -1,9 +1,9 @@
 
 import json
-import board
+import frost.board
 
-from bitboard import rBitscan, fBitscan, getBit
-from scripts import printBboard
+from frost.bitboard import rBitscan, fBitscan, getBit
+from frost.scripts import printBboard
 
 
 class Attack:
@@ -16,7 +16,7 @@ class Attack:
 
 
     def init():
-        with open("attackRays.json", "r") as f:
+        with open("./frost/attackRays.json", "r") as f:
             Attack.__rayTable = json.load(f)
 
 
@@ -28,7 +28,7 @@ class Attack:
 	    blockers = (occBboard & Attack.__rayTable[rayDir][sq]) ^ (1 << sq)
 	    blckRay = Attack.__rayTable[rayDir][sq]
 	    if blockers != 0:
-		    fstBlockerSq = rBitscan(blockers) if Attack.isNegDir(rayDir) else fBitscan(blockers)
+		    fstBlockerSq = fBitscan(blockers) if Attack.isNegDir(rayDir) else rBitscan(blockers)
 		    rmRay = Attack.__rayTable[rayDir][fstBlockerSq] ^ (1 << fstBlockerSq)
 		    blckRay ^= rmRay
 	    return blckRay
