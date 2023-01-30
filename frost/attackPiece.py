@@ -28,7 +28,7 @@ class Attack:
 	    blockers = (occBboard & Attack.__rayTable[rayDir][sq]) ^ (1 << sq)
 	    blckRay = Attack.__rayTable[rayDir][sq]
 	    if blockers != 0:
-		    fstBlockerSq = fBitscan(blockers) if Attack.isNegDir(rayDir) else rBitscan(blockers)
+		    fstBlockerSq = rBitscan(blockers) if Attack.isNegDir(rayDir) else fBitscan(blockers)
 		    rmRay = Attack.__rayTable[rayDir][fstBlockerSq] ^ (1 << fstBlockerSq)
 		    blckRay ^= rmRay
 	    return blckRay
