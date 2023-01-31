@@ -1,24 +1,40 @@
 
-import typing 
+from typing import Dict
 
 from frost.board import Board
 from frost.constants import *
 
 
+class GameState:
+    def __init__(self) -> None:
+        self.board: Board
+        self.turn: Turn
+        self.phase: Phase
+
+    def toggleTurn(self) -> None:
+        self.turn = Turn.WHITE if self.turn == Turn.BLACK else Turn.BLACK
+        
+    def setPhase(self, phase: Phase) -> None:
+        self.phase = phase
+
+
 class InitialStateFactory:
-    def NORMAL():
+    @staticmethod
+    def NORMAL() -> GameState:
         gameState: GameState = InitialStateFactory.__BASE("./frost/emptyBoard.txt")
         gameState.turn = Turn.WHITE
         gameState.phase = Phase.DEPLOYMENT
         return gameState
 
-    def TEST_PRESET():
+    @staticmethod
+    def TEST_PRESET() -> GameState:
         gameState: GameState = InitialStateFactory.__BASE("./frost/randomBoard.txt")
         gameState.turn = Turn.WHITE
         gameState.phase = Phase.PLAYING
         return gameState
         
-    def __BASE(boardFile):
+    @staticmethod
+    def __BASE(boardFile) -> GameState:
         state: GameState = GameState()
         with open(boardFile, "r") as f:
             bboards: Dict[str, int] = {}
@@ -27,16 +43,3 @@ class InitialStateFactory:
             state.board = Board(bboards)
         return state
 
-
-class GameState:
-    def __init__(self):
-        self.board: Board = None
-        self.turn: str = None
-        self.phase: str = None
-
-    def toggleTurn(self):
-        self.turn = Turn.WHITE if self.turn == Turn.BLACK else Turn.BLACK
-        
-    def setPhase(self, phase):
-        self.phase = phase
-    

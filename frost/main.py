@@ -4,7 +4,7 @@ import json
 import pygame
 from typing import List
 
-from frost.state import InitialStateFactory
+from frost.state import InitialStateFactory, GameState
 from frost.attackPiece import Attack
 from frost.draw import Draw
 from frost.scripts import printBboard
@@ -12,12 +12,12 @@ from frost.constants import *
 
 
 class App:
-    def __init__(self):
+    def __init__(self) -> None:
         pygame.init()
-        self.gameState: GameState = None
+        self.gameState: GameState
         self.draw: Draw = Draw()
         # MISC state
-        self.selectedSquare: int = None
+        self.selectedSquare: int
         self.toDeploy: List[str] = []
         self.initStates()
 
@@ -67,13 +67,13 @@ class App:
         mx, my = pygame.mouse.get_pos()
         square: int  = 10 * ((WIN_HEIGHT - my) // TILE_HEIGHT) + (mx // TILE_WIDTH)
         if self.gameState.board.getPieceAtTile(square) != "None":
-            if self.selectedSquare != None:
-                self.selectedSquare = None if self.gameState.board.movePiece(self.selectedSquare, square) else square
+            if self.selectedSquare != -1:
+                self.selectedSquare = -1 if self.gameState.board.movePiece(self.selectedSquare, square) else square
                 self.draw.syncPieces(self.gameState.board.bboards)
             else:
                 self.selectedSquare = square
         else:
-            self.selectedSquare = None
+            self.selectedSquare = -1
 
 
     def mainloop(self) -> None:

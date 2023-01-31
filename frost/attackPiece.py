@@ -72,9 +72,10 @@ class Attack:
         for key in bboards.keys():
             if getBit(bboards[key], square):
                 return key
+        return "None"
 
     @staticmethod
-    def __getOccBoard(bboards: Dict[str, int]) -> str:
+    def __getOccBoard(bboards: Dict[str, int]) -> int:
         occBboard: int = 0
         for key in bboards.keys():
             occBboard |= bboards[key]
