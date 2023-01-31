@@ -19,15 +19,17 @@ class Board:
         for key in Board.KEYS:
             if getBit(self.bboards[key], square):
                 return key
+        return "None"
 
 
     def getPieceColorAtTile(self, square: int) -> str:
         for key in Board.KEYS:
             if getBit(self.bboards[key], square):
                 return key[0]
+        return "N"
 
 
-    def isOccupied(self, square: int) -> bool:
+    def isOccupied(self, square: int) -> int:
         occ: int = self.getOccBboard()
         return getBit(occ, square)
 
@@ -46,8 +48,7 @@ class Board:
 
 
     def getColorAttkSet(self, color: str) -> int:
-        pieceTypes: List[str] = ["Pawns", "Bishops", "Knights", "Queens", "Rooks", "Kings"]
-        pieceTypes: List[str] = [f"{color}{pType}" for pType in pieceTypes]
+        pieceTypes: List[str] = [f"{color}{pType}" for pType in ["Pawns", "Bishops", "Knights", "Queens", "Rooks", "Kings"]]
         attkSet: int = 0
         for pType in pieceTypes:
             bboard: int = self.bboards[pType]
