@@ -7,6 +7,15 @@ A chess-like game with the following modifications:
 
 ---
 
+# Setup
+This project uses venv and pip in Python3.8 to manage packages. To setup and run the project, clone the repository and run the following commands in the root project directory:
+1. `python3 -m venv ./`
+2. `source bin/activate`
+3. `python3 -m pip install -r requirements.txt`
+4. Run `make` to start frost.
+
+---
+
 # Project Goals
  - [ ] Create a functioning one versus one game.
     - [x] Ability to move and capture pieces.
