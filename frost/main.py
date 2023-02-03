@@ -8,7 +8,7 @@ from frost.state import InitialStateFactory, GameState
 from frost.attackPiece import Attack
 from frost.draw import Draw
 from frost.scripts import printBboard
-from frost.constants import *
+from frost.customTypes import *
 
 
 class App:
@@ -17,7 +17,7 @@ class App:
         self.gameState: GameState
         self.draw: Draw = Draw()
         # MISC state
-        self.selectedSquare: int
+        self.selectedSquare: int = -1
         self.toDeploy: List[str] = []
         self.initStates()
 
@@ -48,7 +48,7 @@ class App:
         mx: int
         my: int
         mx, my = pygame.mouse.get_pos()
-        square: int  = 10 * ((WIN_HEIGHT - my) // TILE_HEIGHT) + (mx // TILE_WIDTH)
+        square: int  = 10 * ((Draw.WIN_HEIGHT - my) // Draw.TILE_HEIGHT) + (mx // Draw.TILE_WIDTH)
         if not self.gameState.board.isOccupied(square):
             res: bool = self.gameState.board.placePiece(square, f"{self.toDeploy[-1]}s")
             self.draw.syncPieces(self.gameState.board.bboards)
@@ -65,7 +65,7 @@ class App:
         mx: int
         my: int
         mx, my = pygame.mouse.get_pos()
-        square: int  = 10 * ((WIN_HEIGHT - my) // TILE_HEIGHT) + (mx // TILE_WIDTH)
+        square: int  = 10 * ((Draw.WIN_HEIGHT - my) // Draw.TILE_HEIGHT) + (mx // Draw.TILE_WIDTH)
         if self.gameState.board.getPieceAtTile(square) != "None":
             if self.selectedSquare != -1:
                 self.selectedSquare = -1 if self.gameState.board.movePiece(self.selectedSquare, square) else square
@@ -91,7 +91,7 @@ class App:
                 if event.type == pygame.QUIT:
                     pygame.display.quit()
                     sys.exit()
-            self.draw.drawBoard() # Render board and pieces.
+            self.draw.drawBoard(self.selectedSquare) # Render board and pieces.
 
 
 def main():

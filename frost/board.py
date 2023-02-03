@@ -1,7 +1,6 @@
 
 from typing import Dict, List
 
-from frost.constants import *
 from frost.bitboard import getBit, clearBit, setBit, fBitscan
 from frost.attackPiece import Attack
 from frost.scripts import printBboard

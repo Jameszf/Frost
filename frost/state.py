@@ -1,8 +1,8 @@
 
 from typing import Dict
 
+from frost.customTypes import *
 from frost.board import Board
-from frost.constants import *
 
 
 class GameState:

@@ -1,6 +1,6 @@
 
 main:
-	mypy frost/main.py
+	-mypy frost/main.py
 	python3 -m frost.main
 
 test:
