@@ -10,8 +10,7 @@ from frost.bitboard import getBit
 class VisualPiece:
     x: float
     y: float
-    squareX: int
-    squareY: int
+    square: int
     pieceType: str
 
 
@@ -31,11 +30,11 @@ class Draw:
     LIGHT_TILE: Color = 240, 214, 181
 
     def __init__(self) -> None:
-        self.screen: any = pygame.display.set_mode((Draw.WIN_WIDTH, Draw.WIN_HEIGHT))
-        self.clock: any = pygame.time.Clock()
+        self.screen: pygame.surface.Surface = pygame.display.set_mode((Draw.WIN_WIDTH, Draw.WIN_HEIGHT))
+        self.clock: pygame.Clock = pygame.time.Clock()
         sheet = pygame.image.load("./frost/assets/pieces.png").convert_alpha()
         sheet = pygame.transform.smoothscale(sheet, Draw.SHEET_SIZE)
-        self.sheet: any = sheet
+        self.sheet: pygame.surface.Surface = sheet
         self.visualPieces: List[VisualPiece] = []
 
 
@@ -57,11 +56,16 @@ class Draw:
         for key in bboards.keys():
             for i in range(100):
                 if getBit(bboards[key], i):
-                    squareX = i % Draw.BOARD_TILES
-                    squareY = i // Draw.BOARD_TILES
-                    x = squareX * Draw.TILE_WIDTH
+                    x = (i % Draw.BOARD_TILES) * Draw.TILE_WIDTH
                     y = (Draw.BOARD_TILES - 1 - i // Draw.BOARD_TILES) * Draw.TILE_HEIGHT
-                    self.visualPieces.append(VisualPiece(x, y, squareX, squareY, key))
+                    self.visualPieces.append(VisualPiece(x, y, i, key))
+
+
+    def moveVisualPiece(self, pieceSquare, newX, newY):
+        for visualPiece in self.visualPieces:
+            if visualPiece.square == pieceSquare:
+                visualPiece.x = newX
+                visualPiece.y = newY
 
 
     def drawPieces(self):
