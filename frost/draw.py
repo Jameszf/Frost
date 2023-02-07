@@ -61,11 +61,18 @@ class Draw:
                     self.visualPieces.append(VisualPiece(x, y, i, key))
 
 
-    def moveVisualPiece(self, pieceSquare, newX, newY):
+    def moveVisualPiece(self, pieceSquare: int, newX: float, newY: float):
         for visualPiece in self.visualPieces:
             if visualPiece.square == pieceSquare:
                 visualPiece.x = newX
                 visualPiece.y = newY
+
+
+    def drawPieceLast(self, pieceSquare: int):
+        for i in range(len(self.visualPieces)):
+            if self.visualPieces[i].square == pieceSquare:
+                self.visualPieces[i], self.visualPieces[-1] = self.visualPieces[-1], self.visualPieces[i]
+                break
 
 
     def drawPieces(self):
