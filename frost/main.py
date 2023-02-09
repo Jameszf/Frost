@@ -11,7 +11,15 @@ from frost.scripts import printBboard
 from frost.customTypes import *
 
 
+# class EventHandler:
+
+
 class App:
+    """
+    Primary class for one game instance. This includes game logic, window,
+    and (eventually) an computer engine instance. Each App instance's processes
+    (such as rendering and event handling) would be separated from one another.
+    """
     def __init__(self) -> None:
         pygame.init()
         self.gameState: GameState
