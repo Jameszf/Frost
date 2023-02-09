@@ -62,17 +62,14 @@ class Attack:
         return knightSq | noNoEa | noNoWe | noEaEa | soEaEa | soSoEa | soSoWe | soWeWe | noWeWe
 
     @staticmethod
-    def genPawnAttkPiece(sq: int) -> int:
-        northEast: int = (0x800 << sq) & Attack.__notAFile
-        northWest: int = (0x1000000000000000000000000000 >> (99 - sq)) & Attack.__notJFile
-        return northEast | northWest
-
-    @staticmethod
-    def __getPieceAtTile(bboards: Dict[str, int], square: int) -> str:
-        for key in bboards.keys():
-            if getBit(bboards[key], square):
-                return key
-        return "None"
+    def genPawnAttkPiece(sq: int, color: str) -> int:
+        if color == "w":
+            eastPart: int = (0x800 << sq) & Attack.__notAFile
+            westPart: int = (0x1000000000000000000000000000 >> (99 - sq)) & Attack.__notJFile
+        else:
+            eastPart: int = (0x2 << (sq - 10)) & Attack.__notAFile
+            westPart: int = (0x1 << (sq - 11)) & Attack.__notJFile 
+        return westPart | eastPart
 
     @staticmethod
     def __getOccBoard(bboards: Dict[str, int]) -> int:
@@ -82,13 +79,10 @@ class Attack:
         return occBboard
 
     @staticmethod
-    def genAttkPiece(bboards: Dict[str, int], sq: int) -> int:
+    def genAttkPiece(bboards: Dict[str, int], sq: int, piece: str) -> int:
         print(f"Generating Attack Piece Bitboard for piece at square #{sq}")
-        print(f"Piece occupying that tile: {Attack.__getPieceAtTile(bboards, sq)}")
 
-        pType: str = Attack.__getPieceAtTile(bboards, sq)
-        pType = pType[1:] if pType else "None"
-
+        pType = piece[1:]
         # Sliding pieces
         attkPiece: int = 0
         if pType == "Queens" or pType == "Rooks" or pType == "Bishops":
@@ -103,7 +97,8 @@ class Attack:
         elif pType == "Knights":
             attkPiece = Attack.genKnightAttkPiece(sq)
         elif pType == "Pawns":
-            attkPiece = Attack.genPawnAttkPiece(sq)
+            color: str = piece[0]
+            attkPiece = Attack.genPawnAttkPiece(sq, color)
         elif pType == "Kings":
             attkPiece = Attack.genKingAttkPiece(sq)
         else:
